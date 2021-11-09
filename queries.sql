@@ -50,3 +50,17 @@ and  user_name = lead(user_name,2) over(order by login_id)
 then user_name else null end as repeated_names
 from login_details) x
 where x.repeated_names is not null; 
+
+
+--- Time difference filter
+
+datediff(now(), cast(unix_timestamp(`dt_prem_saisie_bulletin`, "yyyyMMdd") as timestamp)) < 2
+
+--- Filter a table with a query
+
+SELECT A.*
+  FROM `perfsegmentation_base_aggrega_to_crm` A
+  INNER JOIN (SELECT max(`id_mois`) as id_max FROM `perfsegmentation_base_aggrega_to_crm`) B 
+  ON A.`id_mois`=B.id_max
+  
+  
