@@ -55,14 +55,11 @@ SELECT A.*
 ----- Query that returns the top 3 spenders(users) by country
   
   SELECT *
-FROM (
-			SELECT  *, rank() over (partition by country order by total desc) as rk
-			FROM (
-							SELECT country, user_id, sum(total_amount_spent) as total
-							FROM userdatabase
-							WHERE install_source='ua'
-							GROUP BY user_id, country
-						) a
+FROM (SELECT  *, rank() over (partition by country order by total desc) as rk
+			FROM (SELECT country, user_id, sum(total_amount_spent) as total
+				FROM userdatabase
+				WHERE install_source='ua'
+				GROUP BY user_id, country ) a
 		) b
 
 WHERE rk <=3
@@ -71,23 +68,12 @@ ORDER BY country, rk
 ----- Query that gives the daily average revenue per game, with daily average revenue = total_amount_spent / total unique players
 
 SELECT install_date, game, (total_amount_spent/total_unique_players) as daily_average_revenue`
-FROM (
-			SELECT install_date, game, COUNT(DISTINCT user_id )as total_unique_players, SUM(total_amount_spent) as total_amount_spent`
-			FROM gamers
-			GROUP BY install_date, game
+FROM (SELECT install_date, game, COUNT(DISTINCT user_id )as total_unique_players, SUM(total_amount_spent) as total_amount_spent`
+	FROM gamers
+	GROUP BY install_date, game
 			) a
       
       
-
-
-
-
-
-
-
-
-
-
 
 
 
