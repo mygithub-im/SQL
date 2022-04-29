@@ -1,15 +1,4 @@
---- Select Doctor who work in the same hospital but in different specialities , to do so we join the table to it self as follow
-
-
-Select d1.*
-from doctors d1
-join doctors d2 on d1.id <> d2.id 
-and d1.hospital = d2.hospital 
-and d1.speciality <> d2.speciality
-
-
-
----- SQL Query to fetch all the duplicate records in a table
+----- SQL Query to fetch all the duplicate records in a table
 
 
 Select user_id, user_name, email
@@ -17,10 +6,10 @@ from (select *,
 row_number() over (partition by user_name order by user_id) as rn
 from users u
 order by user_id) x
-where x.rn <> 1; 
+where x.rn != 1; 
 
 
---- SQL query to fetch the second last record from employee table
+----- SQL query to fetch the second last record from employee table
 
 Select emp_id, emp_name, dept_name, salary
 from (select *,
@@ -29,7 +18,7 @@ from employee e) x
 where x.rn = 2;
 
 
---- SQL query to display only the details of employees who either earn the highest salary or the lowest salary in each department from the employee table
+----- SQL query to display only the details of employees who either earn the highest salary or the lowest salary in each department from the employee table
 
 Select x.*
 from employee e
@@ -41,7 +30,7 @@ on e.emp_id = x.emp_id
 and (e.salary = x.max_salary or e.salary = x.min_salary)
 order by x.dept_name, x.salary;
 
---- From the login_details table, fetch the users who logged in consecutively 3 or more times
+------ From the login_details table, fetch the users who logged in consecutively 3 or more times
 
 Select distinct repeated_names
 from (select *,
@@ -52,15 +41,54 @@ from login_details) x
 where x.repeated_names is not null; 
 
 
---- Time difference filter
+----- Time difference filter
 
-datediff(now(), cast(unix_timestamp(`dt_prem_saisie_bulletin`, "yyyyMMdd") as timestamp)) < 2
+datediff(now(), cast(unix_timestamp(`dt_prem_inscription`, "yyyyMMdd") as timestamp)) < 2
 
---- Filter a table with a query
+----- Filter a table with a query
 
 SELECT A.*
   FROM `perfsegmentation_base_aggrega_to_crm` A
-  INNER JOIN (SELECT max(`id_mois`) as id_max FROM `perfsegmentation_base_aggrega_to_crm`) B 
+  INNER JOIN (SELECT max(`id_mois`) as id_max FROM `perfsegmentation_base_aggrega`) B 
   ON A.`id_mois`=B.id_max
   
+----- Query that returns the top 3 spenders(users) by country
   
+  SELECT *
+FROM (
+			SELECT  *, rank() over (partition by country order by total desc) as rk
+			FROM (
+							SELECT country, user_id, sum(total_amount_spent) as total
+							FROM userdatabase
+							WHERE install_source='ua'
+							GROUP BY user_id, country
+						) a
+		) b
+
+WHERE rk <=3
+ORDER BY country, rk
+
+----- Query that gives the daily average revenue per game, with daily average revenue = total_amount_spent / total unique players
+
+SELECT install_date, game, (total_amount_spent/total_unique_players) as daily_average_revenue`
+FROM (
+			SELECT install_date, game, COUNT(DISTINCT user_id )as total_unique_players, SUM(total_amount_spent) as total_amount_spent`
+			FROM gamers
+			GROUP BY install_date, game
+			) a
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
